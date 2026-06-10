@@ -37,10 +37,10 @@ def create_app(config: dict = None) -> Flask:
         app.config.update(config)
 
     # Register blueprints
-    from app.routes.recommend import recommend_bp
-    from app.routes.products import products_bp
-    from app.routes.analytics import analytics_bp
-    from app.routes.health import health_bp
+    from retail_recommender.app.routes.recommend import recommend_bp
+    from retail_recommender.app.routes.products import products_bp
+    from retail_recommender.app.routes.analytics import analytics_bp
+    from retail_recommender.app.routes.health import health_bp
 
     app.register_blueprint(health_bp, url_prefix="/api")
     app.register_blueprint(recommend_bp, url_prefix="/api/recommend")
@@ -48,5 +48,6 @@ def create_app(config: dict = None) -> Flask:
     app.register_blueprint(analytics_bp, url_prefix="/api/analytics")
 
     return app
+
 
 app = create_app()

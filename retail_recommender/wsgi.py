@@ -1,0 +1,1 @@
+from retail_recommender.app import app
