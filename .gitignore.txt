@@ -1,7 +1,0 @@
-__pycache__/
-*.pyc
-.env
-venv/
-
-retail_recommender/data/*.xlsx
-retail_recommender/data/*.csv
