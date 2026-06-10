@@ -134,8 +134,8 @@ class DataPreprocessor:
         popular_items = item_counts[item_counts >= min_transactions].index
 
         # Jika masih terlalu banyak, ambil top-N by frequency
-        if len(popular_items) > 500:
-            popular_items = item_counts.nlargest(500).index
+        if len(popular_items) > 100:
+            popular_items = item_counts.nlargest(100).index
 
         basket = basket[popular_items]
         # Konversi ke bool agar mlxtend tidak peringatkan + hemat memori
