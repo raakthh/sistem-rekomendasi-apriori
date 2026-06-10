@@ -47,6 +47,13 @@ def create_app(config: dict = None) -> Flask:
     app.register_blueprint(products_bp, url_prefix="/api/products")
     app.register_blueprint(analytics_bp, url_prefix="/api/analytics")
 
+@app.route("/")
+def home():
+    return {
+        "status": "online",
+        "message": "Retail Recommendation API Running"
+    }
+
     return app
 
 
