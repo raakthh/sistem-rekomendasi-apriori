@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, current_app
-from app.model_manager import get_model_state, get_engine, get_preprocessor, initialize_models
+from retail_recommender.app.model_manager import get_model_state, get_engine, get_preprocessor, initialize_models
 
 health_bp = Blueprint("health", __name__)
 

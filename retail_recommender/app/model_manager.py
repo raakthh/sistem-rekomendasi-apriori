@@ -6,8 +6,8 @@ agar tidak di-reload setiap request.
 import os
 import logging
 from threading import Lock
-from utils.preprocessor import DataPreprocessor
-from models.apriori_engine import AprioriEngine
+from retail_recommender.utils.preprocessor import DataPreprocessor
+from retail_recommender.models.apriori_engine import AprioriEngine
 
 logger = logging.getLogger(__name__)
 

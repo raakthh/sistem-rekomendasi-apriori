@@ -9,8 +9,8 @@ import logging
 # Tambahkan root project ke sys.path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app import create_app
-from app.model_manager import initialize_models
+from retail_recommender.app import create_app
+from retail_recommender.app.model_manager import initialize_models
 
 logger = logging.getLogger(__name__)
 

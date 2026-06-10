@@ -3,7 +3,7 @@
 """
 
 from flask import Blueprint, request, jsonify
-from app.model_manager import get_model_state, get_engine, get_preprocessor
+from retail_recommender.app.model_manager import get_model_state, get_engine, get_preprocessor
 
 recommend_bp = Blueprint("recommend", __name__)
 
