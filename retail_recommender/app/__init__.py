@@ -48,3 +48,5 @@ def create_app(config: dict = None) -> Flask:
     app.register_blueprint(analytics_bp, url_prefix="/api/analytics")
 
     return app
+
+app = create_app()
