@@ -46,23 +46,36 @@ def initialize_models(app_config: dict) -> dict:
 
         try:
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            dataset_path = os.path.join(base_dir, app_config["DATASET_PATH"])
+            dataset_path = os.path.join(base_dir, app_config.get("DATASET_PATH", "data/online_retail_sample_20k.xlsx"))
 
             logger.info("=== Memulai Inisialisasi Model ===")
 
             # Pipeline Preprocessing
             preprocessor = DataPreprocessor(
                 filepath=dataset_path,
-                sheet_name=app_config["DATASET_SHEET"],
+                sheet_name=app_config.get("DATASET_SHEET", "Sheet1"),
             )
             preprocessor.run_pipeline()
 
-            # Pipeline Apriori
+            # ========== PERBAIKAN PARAMETER APRIORI ==========
+            # Ambil dari config, tapi jika tidak ada atau nilai tidak tepat, gunakan default yang benar
+            min_support = app_config.get("MIN_SUPPORT", 0.0005)   # turunkan dari 0.001
+            min_confidence = app_config.get("MIN_CONFIDENCE", 0.05)
+            min_lift = app_config.get("MIN_LIFT", 0.8)
+            max_len = app_config.get("MAX_LEN", 3)                # PASTIKAN 3, BUKAN 2!
+
+            # Pastikan max_len minimal 3 agar bisa membentuk rules
+            if max_len < 2:
+                logger.warning(f"MAX_LEN={max_len} terlalu kecil, diubah menjadi 3")
+                max_len = 2
+
+            logger.info(f"Parameter Apriori: min_support={min_support}, min_confidence={min_confidence}, min_lift={min_lift}, max_len={max_len}")
+
             engine = AprioriEngine(
-                min_support=app_config["MIN_SUPPORT"],
-                min_confidence=app_config["MIN_CONFIDENCE"],
-                min_lift=app_config["MIN_LIFT"],
-                max_len=app_config["MAX_LEN"],
+                min_support=min_support,
+                min_confidence=min_confidence,
+                min_lift=min_lift,
+                max_len=max_len,
             )
             engine.run_pipeline(preprocessor.transaction_df)
 

@@ -22,10 +22,10 @@ class AprioriEngine:
 
     def __init__(
         self,
-        min_support: float = 0.02,
-        min_confidence: float = 0.3,
-        min_lift: float = 1.0,
-        max_len: int = 4,
+        min_support: float = 0.001,      # cocok untuk 8k transaksi
+        min_confidence: float = 0.05,    # lebih longgar
+        min_lift: float = 0.5,
+        max_len: int = 2,                # lebih ringan
     ):
         self.min_support = min_support
         self.min_confidence = min_confidence
@@ -34,7 +34,7 @@ class AprioriEngine:
 
         self.frequent_itemsets = None
         self.rules = None
-        self._rules_cache = {}   # {frozenset(antecedents): [rekomendasi]}
+        self._rules_cache = {}
 
     # ------------------------------------------------------------------ #
     #  STEP 4 – Frequent Itemsets (Apriori)                               #
@@ -62,9 +62,31 @@ class AprioriEngine:
             low_memory=False,
         )
 
+        if self.frequent_itemsets.empty:
+            logger.warning("Tidak ada frequent itemsets yang ditemukan! Coba turunkan min_support.")
+            return self.frequent_itemsets
+
         self.frequent_itemsets["length"] = self.frequent_itemsets["itemsets"].apply(len)
 
+        logger.info(
+            f"Distribusi ukuran itemset:\n"
+            f"{self.frequent_itemsets['length'].value_counts().sort_index()}"
+        )
+
+        # ========== TAMBAHAN: print itemset dengan panjang >= 2 ==========
+        print(
+            self.frequent_itemsets[
+                self.frequent_itemsets["length"] >= 2
+            ]
+        )
+        # ================================================================
+
+        logger.info(
+            f"\nTop 20 itemsets:\n{self.frequent_itemsets.head(20)}"
+        )
+
         logger.info(f"Frequent itemsets ditemukan: {len(self.frequent_itemsets):,}")
+
         return self.frequent_itemsets
 
     # ------------------------------------------------------------------ #
@@ -90,6 +112,11 @@ class AprioriEngine:
             min_threshold=self.min_confidence,
             num_itemsets=len(self.frequent_itemsets),
         )
+
+        if rules.empty:
+            logger.warning("Tidak ada rules yang terbentuk. Coba turunkan min_confidence atau min_support.")
+            self.rules = rules
+            return rules
 
         # Filter lift
         rules = rules[rules["lift"] >= self.min_lift]
@@ -120,7 +147,7 @@ class AprioriEngine:
     # ------------------------------------------------------------------ #
     def _build_cache(self):
         """Bangun lookup cache: frozenset(items) → daftar rekomendasi."""
-        if self.rules is None:
+        if self.rules is None or self.rules.empty:
             return
 
         cache = {}
@@ -185,10 +212,13 @@ class AprioriEngine:
 
     def get_popular_combos(self, top_n: int = 20) -> list:
         """Produk yang paling sering dibeli bersama (berdasarkan support)."""
-        if self.frequent_itemsets is None:
+        if self.frequent_itemsets is None or self.frequent_itemsets.empty:
             return []
 
         pairs = self.frequent_itemsets[self.frequent_itemsets["length"] >= 2].copy()
+        if pairs.empty:
+            return []
+
         pairs.sort_values("support", ascending=False, inplace=True)
 
         result = []
@@ -204,7 +234,7 @@ class AprioriEngine:
 
     def get_top_rules(self, top_n: int = 50) -> list:
         """Kembalikan top N association rules."""
-        if self.rules is None:
+        if self.rules is None or self.rules.empty:
             return []
 
         cols = [

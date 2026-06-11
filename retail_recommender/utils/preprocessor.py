@@ -96,7 +96,7 @@ class DataPreprocessor:
         return self.clean_df
 
     # ------------------------------------------------------------------ #
-    #  STEP 3 – Transformasi ke Transaction Matrix                        #
+    #  STEP 3 – Transformasi ke Transaction Matrix                       #
     # ------------------------------------------------------------------ #
     def build_transaction_matrix(self, country: str = None) -> pd.DataFrame:
         """
@@ -117,28 +117,50 @@ class DataPreprocessor:
                 raise ValueError(f"Tidak ada data untuk negara: {country}")
             logger.info(f"Filter negara '{country}': {len(df):,} baris")
 
-        # Group item per invoice
+        # =========================
+        # GROUP TRANSAKSI
+        # =========================
         basket = (
             df.groupby(["Invoice", "Description"])["Quantity"]
             .sum()
             .unstack(fill_value=0)
         )
 
-        # Encode: 1 jika dibeli (qty > 0), 0 jika tidak
+        # =========================
+        # ONE HOT ENCODING (pandas 2.1+ → .map, bukan .applymap)
+        # =========================
         basket = basket.map(lambda x: 1 if x > 0 else 0)
 
-        # Hapus item yang jarang muncul — filter cukup agresif agar Apriori
-        # tidak kehabisan memori. Target: max ~500 kolom produk.
-        min_transactions = max(10, int(len(basket) * 0.01))
-        item_counts = basket.sum()
-        popular_items = item_counts[item_counts >= min_transactions].index
+        logger.info(
+            f"Sebelum filtering: {basket.shape[0]:,} transaksi × "
+            f"{basket.shape[1]:,} produk"
+        )
 
-        # Jika masih terlalu banyak, ambil top-N by frequency
+        # =========================
+        # FILTER PRODUK
+        # =========================
+        item_counts = basket.sum()
+
+        # Dataset 20k → threshold rendah
+        min_transactions = 2
+
+        popular_items = item_counts[item_counts >= min_transactions].index
+        logger.info(f"Produk setelah threshold {min_transactions}: {len(popular_items):,}")
+
+        # Batasi jumlah produk
         if len(popular_items) > 100:
             popular_items = item_counts.nlargest(100).index
+            logger.info("Produk terlalu banyak, dibatasi menjadi top 100.")
 
         basket = basket[popular_items]
-        # Konversi ke bool agar mlxtend tidak peringatkan + hemat memori
+
+        # Fallback kalau kosong
+        if basket.shape[1] == 0:
+            logger.warning("Semua produk terfilter. Menggunakan top 100 produk.")
+            popular_items = item_counts.nlargest(min(100, len(item_counts))).index
+            basket = basket[popular_items]
+
+        # Hemat memori
         basket = basket.astype(bool)
 
         logger.info(
