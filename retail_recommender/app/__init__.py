@@ -7,6 +7,7 @@ import logging
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
+from flask import send_from_directory
 
 load_dotenv()
 
@@ -55,10 +56,11 @@ def create_app(config: dict = None) -> Flask:
 
     @app.route("/")
     def home():
-        return {
-            "status": "online",
-            "message": "Retail Recommendation API Running"
-        }
+        return send_from_directory(
+            os.path.join(os.path.dirname(__file__), "../frontend"),
+            "index.html"
+        )
+
 
     return app
 
