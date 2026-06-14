@@ -27,13 +27,13 @@ def create_app(config: dict = None) -> Flask:
     SECRET_KEY=os.getenv("SECRET_KEY", "dev-secret-key"),
     DATASET_PATH=os.getenv(
         "DATASET_PATH",
-        "data/online_retail_sample_invoice.xlsx"
+        "data/online_retail_sample_2000_invoice.xlsx"
     ),
     DATASET_SHEET=os.getenv(
         "DATASET_SHEET",
         "Sheet1"
     ),
-    MIN_SUPPORT=float(os.getenv("MIN_SUPPORT", 0.001)),
+    MIN_SUPPORT=float(os.getenv("MIN_SUPPORT", 0.002)),
     MIN_CONFIDENCE=float(os.getenv("MIN_CONFIDENCE", 0.05)),
     MIN_LIFT=float(os.getenv("MIN_LIFT", 0.8)),
     MAX_LEN=int(os.getenv("MAX_LEN", 2)),
