@@ -1707,11 +1707,14 @@
         btn.disabled = true;
 
         try {
-          const r = await fetch(`${API}/recommend/products`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ products: selectedProducts, top_n: 9 }),
-          });
+          const r = await fetch(
+            "https://apriorirec.onrender.com/api/recommend/products",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ products: selectedProducts, top_n: 9 }),
+            },
+          );
           const d = await r.json();
           renderRecommendations(d);
         } catch {
