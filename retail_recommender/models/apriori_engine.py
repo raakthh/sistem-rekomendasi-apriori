@@ -109,8 +109,7 @@ class AprioriEngine:
         rules = association_rules(
             self.frequent_itemsets,
             metric="confidence",
-            min_threshold=self.min_confidence,
-            num_itemsets=len(self.frequent_itemsets),
+            min_threshold=self.min_confidence
         )
 
         if rules.empty:
