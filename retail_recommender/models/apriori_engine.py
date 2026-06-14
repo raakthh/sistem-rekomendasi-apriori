@@ -106,6 +106,8 @@ class AprioriEngine:
             f"min_confidence={self.min_confidence}, min_lift={self.min_lift} ..."
         )
 
+        logger.info("ASSOCIATION RULES VERSION FIX ACTIVE")
+
         rules = association_rules(
             self.frequent_itemsets,
             metric="confidence",
